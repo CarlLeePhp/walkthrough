@@ -1,7 +1,7 @@
-import { useAppDispatch, useAppSelector } from "../../app/store/hooks"
-import { addDepartment, departmentSelector, updateDepartment } from "./departmentSlice"
+import { useAppDispatch, useAppSelector } from "../../app/store/hooks";
+import { addDepartment, departmentSelector, updateDepartment } from "./departmentSlice";
 import { useEffect, useState } from "react";
-import { Department } from "../../models/Department"
+import { Department } from "../../models/Department";
 import { Button, Card, CardActions, CardContent, Modal, Table, TableBody, TableCell, TableHead, TableRow, TextField } from "@mui/material";
 
 export default function DepartmentPage() {
@@ -13,14 +13,13 @@ export default function DepartmentPage() {
 
     const selectedDepartments = useAppSelector(departmentSelector);
 
-
     const dispatch = useAppDispatch();
 
     useEffect(() => {
         setDepartments(selectedDepartments);
         // what this below for?
         return () => {
-            console.log("department component unmounting ...")
+            console.log("department component unmounting ...");
         };
     }, [selectedDepartments]);
 
@@ -48,9 +47,9 @@ export default function DepartmentPage() {
 
     function handleAddDepartment() {
         let newDepartment: Department = {
-            id: (departments.length + 1),
+            id: departments.length + 1,
             name: selectedName,
-            isActive: true
+            isActive: true,
         };
         dispatch(addDepartment(newDepartment));
         setOpen(false);
@@ -60,7 +59,7 @@ export default function DepartmentPage() {
         let editDepartment: Department = {
             id: selectedId,
             name: selectedName,
-            isActive: true
+            isActive: true,
         };
         dispatch(updateDepartment(editDepartment));
         setOpen(false);
@@ -70,7 +69,9 @@ export default function DepartmentPage() {
         <div>
             <h2>Department Manage Page</h2>
 
-            <Button variant="contained" color="primary" onClick={newDepartment} sx={{ position: "fixed", bottom: "20px", right: "20px" }}>New</Button>
+            <Button variant="contained" color="primary" onClick={newDepartment} sx={{ position: "fixed", bottom: "20px", right: "20px" }}>
+                New
+            </Button>
             <Table aria-label="simple table">
                 <TableHead>
                     <TableRow>
@@ -79,41 +80,43 @@ export default function DepartmentPage() {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {departments.map(d => (
+                    {departments.map((d) => (
                         <TableRow key={d.id}>
                             <TableCell>{d.name}</TableCell>
                             <TableCell>
-                                <Button variant="contained" color="primary" onClick={() => editDepartment(d.id)}>Edit</Button>
-                                <Button variant="contained" color="error" onClick={closeModal} sx={{ marginLeft: "10px" }}>Delete</Button>
+                                <Button variant="contained" color="primary" onClick={() => editDepartment(d.id)}>
+                                    Edit
+                                </Button>
+                                <Button variant="contained" color="error" onClick={closeModal} sx={{ marginLeft: "10px" }}>
+                                    Delete
+                                </Button>
                             </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
             </Table>
 
-            <Modal
-                open={open}
-                onClose={closeModal}
-                sx={{ position: "absolute", top: "40%", left: "40%" }}
-            >
-                <>
-                    <Card variant="outlined" sx={{ maxWidth: "400px" }}>
-                        <CardContent>
-                            <TextField type="text" label="Name" placeholder="Department Name" value={selectedName} onChange={(e) => setSelectedName(e.target.value)} />
-                        </CardContent>
-                        <CardActions>
-                            {isEdit ? (
-                                <Button variant="contained" color="primary" onClick={handleEditDepartment}>Update</Button>
-                            ) : (
-                                <Button variant="contained" color="primary" onClick={handleAddDepartment}>Add</Button>
-                            )}
-                            <Button variant="contained" color="secondary" onClick={closeModal}>Cancel</Button>
-                        </CardActions>
-                    </Card>
-                </>
-
+            <Modal open={open} onClose={closeModal} sx={{ position: "absolute", top: "40%", left: "40%" }}>
+                <Card variant="outlined" sx={{ maxWidth: "400px" }}>
+                    <CardContent>
+                        <TextField type="text" label="Name" placeholder="Department Name" value={selectedName} onChange={(e) => setSelectedName(e.target.value)} />
+                    </CardContent>
+                    <CardActions>
+                        {isEdit ? (
+                            <Button variant="contained" color="primary" onClick={handleEditDepartment}>
+                                Update
+                            </Button>
+                        ) : (
+                            <Button variant="contained" color="primary" onClick={handleAddDepartment}>
+                                Add
+                            </Button>
+                        )}
+                        <Button variant="contained" color="secondary" onClick={closeModal}>
+                            Cancel
+                        </Button>
+                    </CardActions>
+                </Card>
             </Modal>
         </div>
-
-    )
+    );
 }
