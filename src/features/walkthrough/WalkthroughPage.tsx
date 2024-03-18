@@ -4,18 +4,19 @@ import { Department } from "../../models/Department";
 
 import { RootState } from "../../app/store/configureStore";
 
-import { useAppSelector } from "../../app/store/hooks";
+import { useAppSelector, useAppDispatch } from "../../app/store/hooks";
 import { addDepartment, departmentSelector } from "../department/departmentSlice";
+import { addWalkthrough, updateWalkthrough } from "./walkthroughSlice";
 
 import { DataGrid, GridColDef, GridValueGetterParams } from "@mui/x-data-grid";
-import { Button, Modal, Card, CardContent, CardActions, TextField } from "@mui/material";
+import { Button, Modal, Card, CardContent, CardActions, TextField, MenuItem } from "@mui/material";
 
 export default function WalkthroughPage() {
     const emptyWalkthrough: Walkthrough = {
         id: 0,
-        date: "",
+        date: "2024-03-18",
         species: "",
-        departmentId: 0,
+        departmentId: 1,
         departmentName: "",
         shift: "",
         time: "",
@@ -28,23 +29,16 @@ export default function WalkthroughPage() {
         comments: "",
         correctiveAction: "",
     };
-    const [departments, setDepartments] = useState<Array<Department>>([]);
     const [selectedWalkthrough, setSelectedWalkthrough] = useState<Walkthrough>(emptyWalkthrough);
 
     const walkthroughs = useAppSelector((state: RootState) => state.walkthrough.walkthroughs);
+    const dispatch = useAppDispatch();
 
-    const selectedDepartments = useAppSelector(departmentSelector);
+    const departments = useAppSelector(departmentSelector);
 
     const [open, setOpen] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
 
-    useEffect(() => {
-        setDepartments(selectedDepartments);
-        // Is this for testing?
-        return () => {
-            console.log("department component unmounting ...");
-        };
-    }, [selectedDepartments]);
 
     // DataGrid
     const columns: GridColDef[] = [
@@ -85,17 +79,44 @@ export default function WalkthroughPage() {
             case "shift":
                 data["shift"] = e.target.value;
                 break;
+            case "department":
+                data["departmentId"] = Number(e.target.value);
+                for (let i = 0; i < departments.length; i++) {
+                    if (departments[i].id === Number(e.target.value)) data["departmentName"] = departments[i].name;
+                }
+                break;
             default:
                 console.log("Errors for handling change.");
         }
         setSelectedWalkthrough(data);
     }
 
-    function addWalkthrough() {
+    function handleAdd() {
+        /*
+        let newItem: Walkthrough = {
+            id: walkthroughs.length + 1,
+            date: "14/03/2024",
+            species: "Ovine", // Ovine
+            departmentId: 1,
+            departmentName: "Stock Yards",
+            shift: "DS", // D/S, N/S
+            time: "9:40",
+            auditorId: 4,
+            auditorName: "CL",
+            actionId: 1,
+            actionDes: "Animal Welfare",
+            compliant: "Yes",
+            status: "Closed", // Open, Closed
+            comments: "Obeserved animals unloaded by transporter, no slipings were identified.",
+            correctiveAction: "",
+        }
+        dispatch(addWalkthrough(newItem));
+        */
+
         console.log(selectedWalkthrough);
     }
 
-    function updateWalkthrough() {}
+    function handleUpdate() { }
     // End for Modal
 
     return (
@@ -121,23 +142,49 @@ export default function WalkthroughPage() {
                 pageSizeOptions={[5, 10]}
                 checkboxSelection
                 disableRowSelectionOnClick
-                autoHeight={true}
+                getRowHeight={() => 'auto'}
             />
 
             <Modal open={open} onClose={closeModal} sx={{ position: "absolute", top: "10%", left: "10%" }}>
-                <Card variant="outlined" sx={{ maxWidth: "400px" }}>
+                <Card variant="outlined" sx={{ maxWidth: "1200px" }}>
                     <CardContent>
                         <TextField type="date" name="date" label="Date" value={selectedWalkthrough.date} onChange={handleChange} margin="normal" />
-                        <TextField type="text" name="species" label="Species" value={selectedWalkthrough.species} onChange={handleChange} margin="normal" />
-                        <TextField variant="standard" type="text" name="shift" label="Shift" value={selectedWalkthrough.shift} onChange={handleChange} margin="normal" />
+                        <TextField type="text" name="species" label="Species" value={selectedWalkthrough.species} onChange={handleChange} margin="normal" sx={{ marginLeft: "10px" }} />
+                        <TextField
+                            select
+                            name="shift"
+                            label="Shift"
+                            defaultValue="D/S"
+                            value={selectedWalkthrough.shift}
+                            onChange={handleChange}
+                            margin="normal" sx={{ marginLeft: "10px", minWidth: "80px" }}
+                        >
+                            <MenuItem value="D/S">D/S</MenuItem>
+                            <MenuItem value="N/S">N/S</MenuItem>
+                        </TextField>
+                        <TextField
+                            select
+                            fullWidth
+                            name="department"
+                            label="Department"
+                            defaultValue={0}
+                            value={selectedWalkthrough.departmentId}
+                            onChange={handleChange}
+                        >
+                            {departments.map(d => (
+                                <MenuItem key={d.id} value={d.id}>
+                                    {d.name}
+                                </MenuItem>
+                            ))}
+                        </TextField>
                     </CardContent>
                     <CardActions>
                         {isEdit ? (
-                            <Button variant="contained" color="primary">
+                            <Button variant="contained" color="primary" onClick={handleUpdate}>
                                 Update
                             </Button>
                         ) : (
-                            <Button variant="contained" color="primary" onClick={addWalkthrough}>
+                            <Button variant="contained" color="primary" onClick={handleAdd}>
                                 Add
                             </Button>
                         )}

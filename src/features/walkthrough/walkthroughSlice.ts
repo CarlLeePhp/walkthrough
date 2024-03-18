@@ -30,7 +30,7 @@ const initialState: WalkthroughState = {
             actionDes: "Animal Welfare",
             compliant: "Yes",
             status: "Closed", // Open, Closed
-            comments: "Obeserved animals unloaded by transporter, no slipings were identified.",
+            comments: "Obeserved animals unloaded by transporter, no slipings were identified. Nee more words to see filling the 3rd line. Maybe it is enough.",
             correctiveAction: "",
         },
         {
