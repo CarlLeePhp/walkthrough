@@ -14,18 +14,18 @@ import { Button, Modal, Card, CardContent, CardActions, TextField, MenuItem } fr
 export default function WalkthroughPage() {
     const emptyWalkthrough: Walkthrough = {
         id: 0,
-        date: "2024-03-18",
+        date: "",
         species: "",
         departmentId: 1,
-        departmentName: "",
+        departmentName: "Stock Yards",
         shift: "",
         time: "",
         auditorId: 1,
-        auditorName: "",
+        auditorName: "MH",
         actionId: 1,
-        actionDes: "",
+        actionDes: "Pre-Trim",
         compliant: "",
-        status: "",
+        status: "Open",
         comments: "",
         correctiveAction: "",
     };
@@ -41,7 +41,6 @@ export default function WalkthroughPage() {
 
     const [open, setOpen] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
-
 
     // DataGrid
     const columns: GridColDef[] = [
@@ -62,6 +61,9 @@ export default function WalkthroughPage() {
     function newWalkthrough() {
         setOpen(true);
         setIsEdit(false);
+        let newId = walkthroughs.length + 1;
+
+        setSelectedWalkthrough(Object.assign(selectedWalkthrough, { id: newId }));
     }
 
     // For Modal
@@ -105,6 +107,16 @@ export default function WalkthroughPage() {
                 break;
             case "compliant":
                 data["compliant"] = e.target.value;
+                if (data["compliant"] === "Yes") data["status"] = "Closed";
+                break;
+            case "status":
+                data["status"] = e.target.value;
+                break;
+            case "comments":
+                data["comments"] = e.target.value;
+                break;
+            case "correctiveAction":
+                data["correctiveAction"] = e.target.value;
                 break;
             default:
                 console.log("Errors for handling change.");
@@ -113,31 +125,12 @@ export default function WalkthroughPage() {
     }
 
     function handleAdd() {
-        /*
-        let newItem: Walkthrough = {
-            id: walkthroughs.length + 1,
-            date: "14/03/2024",
-            species: "Ovine", // Ovine
-            departmentId: 1,
-            departmentName: "Stock Yards",
-            shift: "DS", // D/S, N/S
-            time: "9:40",
-            auditorId: 4,
-            auditorName: "CL",
-            actionId: 1,
-            actionDes: "Animal Welfare",
-            compliant: "Yes",
-            status: "Closed", // Open, Closed
-            comments: "Obeserved animals unloaded by transporter, no slipings were identified.",
-            correctiveAction: "",
-        }
-        dispatch(addWalkthrough(newItem));
-        */
-
-        console.log(selectedWalkthrough);
+        dispatch(addWalkthrough(selectedWalkthrough));
+        setSelectedWalkthrough(emptyWalkthrough);
+        setOpen(false);
     }
 
-    function handleUpdate() { }
+    function handleUpdate() {}
     // End for Modal
 
     return (
@@ -163,13 +156,13 @@ export default function WalkthroughPage() {
                 pageSizeOptions={[5, 10]}
                 checkboxSelection
                 disableRowSelectionOnClick
-                getRowHeight={() => 'auto'}
+                getRowHeight={() => "auto"}
             />
 
             <Modal open={open} onClose={closeModal} sx={{ position: "absolute", top: "10%", left: "10%" }}>
                 <Card variant="outlined" sx={{ maxWidth: "80%" }}>
                     <CardContent>
-                        <TextField type="date" name="date" label="Date" value={selectedWalkthrough.date} onChange={handleChange} margin="normal" />
+                        <TextField type="date" name="date" label="Date" value={selectedWalkthrough.date} onChange={handleChange} margin="normal" sx={{ marginRight: "10px" }} />
                         <TextField
                             select
                             name="species"
@@ -177,11 +170,13 @@ export default function WalkthroughPage() {
                             defaultValue="Ovine"
                             value={selectedWalkthrough.species}
                             onChange={handleChange}
-                            margin="normal" sx={{ marginLeft: "10px", minWidth: "100px" }}
+                            margin="normal"
+                            sx={{ marginRight: "10px", minWidth: "100px" }}
                         >
-                            <MenuItem value="Ovine">Ovine</MenuItem>
-                            <MenuItem value="Bovine">Bovine</MenuItem>
                             <MenuItem value="Bobby">Bobby</MenuItem>
+                            <MenuItem value="Bovine">Bovine</MenuItem>
+                            <MenuItem value="Cervine">Cervine</MenuItem>
+                            <MenuItem value="Ovine">Ovine</MenuItem>
                         </TextField>
                         <TextField
                             select
@@ -190,9 +185,10 @@ export default function WalkthroughPage() {
                             defaultValue={1}
                             value={selectedWalkthrough.departmentId}
                             onChange={handleChange}
-                            margin="normal" sx={{ marginLeft: "10px", minWidth: "120px" }}
+                            margin="normal"
+                            sx={{ marginRight: "10px", minWidth: "120px" }}
                         >
-                            {departments.map(d => (
+                            {departments.map((d) => (
                                 <MenuItem key={d.id} value={d.id}>
                                     {d.name}
                                 </MenuItem>
@@ -205,12 +201,13 @@ export default function WalkthroughPage() {
                             defaultValue="D/S"
                             value={selectedWalkthrough.shift}
                             onChange={handleChange}
-                            margin="normal" sx={{ marginLeft: "10px", minWidth: "80px" }}
+                            margin="normal"
+                            sx={{ marginRight: "10px", minWidth: "80px" }}
                         >
                             <MenuItem value="D/S">D/S</MenuItem>
                             <MenuItem value="N/S">N/S</MenuItem>
                         </TextField>
-                        <TextField type="time" name="time" label="Time" value={selectedWalkthrough.time} onChange={handleChange} margin="normal" sx={{ marginLeft: "10px", minWidth: "80px" }} />
+                        <TextField type="time" name="time" label="Time" value={selectedWalkthrough.time} onChange={handleChange} margin="normal" sx={{ marginRight: "10px", minWidth: "80px" }} />
                         <TextField
                             select
                             name="auditor"
@@ -218,9 +215,10 @@ export default function WalkthroughPage() {
                             defaultValue={1}
                             value={selectedWalkthrough.auditorId}
                             onChange={handleChange}
-                            margin="normal" sx={{ marginLeft: "10px", minWidth: "120px" }}
+                            margin="normal"
+                            sx={{ marginRight: "10px", minWidth: "120px" }}
                         >
-                            {auditors.map(a => (
+                            {auditors.map((a) => (
                                 <MenuItem key={a.id} value={a.id}>
                                     {a.name}
                                 </MenuItem>
@@ -233,9 +231,10 @@ export default function WalkthroughPage() {
                             defaultValue={1}
                             value={selectedWalkthrough.actionId}
                             onChange={handleChange}
-                            margin="normal" sx={{ marginLeft: "10px", minWidth: "180px" }}
+                            margin="normal"
+                            sx={{ marginRight: "10px", minWidth: "180px" }}
                         >
-                            {actions.map(a => (
+                            {actions.map((a) => (
                                 <MenuItem key={a.id} value={a.id}>
                                     {a.description}
                                 </MenuItem>
@@ -249,11 +248,27 @@ export default function WalkthroughPage() {
                             defaultValue="Yes"
                             value={selectedWalkthrough.compliant}
                             onChange={handleChange}
-                            margin="normal" sx={{ marginLeft: "10px", minWidth: "80px" }}
+                            margin="normal"
+                            sx={{ marginRight: "10px", minWidth: "100px" }}
                         >
                             <MenuItem value="Yes">Yes</MenuItem>
                             <MenuItem value="No">No</MenuItem>
                         </TextField>
+                        <TextField select name="status" label="Status" value={selectedWalkthrough.status} onChange={handleChange} margin="normal" sx={{ marginRight: "10px", minWidth: "80px" }}>
+                            <MenuItem value="Open">Open</MenuItem>
+                            <MenuItem value="Closed">Closed</MenuItem>
+                        </TextField>
+                        <TextField name="comments" label="Comments" value={selectedWalkthrough.comments} onChange={handleChange} fullWidth multiline minRows={2} margin="normal" />
+                        <TextField
+                            name="correctiveAction"
+                            label="Corrective Actions"
+                            value={selectedWalkthrough.correctiveAction}
+                            onChange={handleChange}
+                            fullWidth
+                            multiline
+                            minRows={2}
+                            margin="normal"
+                        />
                     </CardContent>
                     <CardActions>
                         {isEdit ? (
