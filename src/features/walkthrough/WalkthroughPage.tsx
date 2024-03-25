@@ -17,6 +17,10 @@ import {
 import { Button } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Cancel';
+
+import { Department } from "../../models/Department";
 
 
 
@@ -58,7 +62,7 @@ export default function WalkthroughPage() {
             species: "Ovine", // Ovine
             departmentId: 1,
             departmentName: "Stock Yards",
-            shift: "DS", // D/S, N/S
+            shift: "D/S", // D/S, N/S
             time: "9:40",
             auditorId: 4,
             auditorName: "CL",
@@ -71,11 +75,11 @@ export default function WalkthroughPage() {
         },
         {
             id: 2,
-            date: new Date("14/03/2024"),
+            date: new Date("2024-03-27"),
             species: "Ovine", // Ovine
             departmentId: 4,
             departmentName: "FP 1",
-            shift: "DS", // D/S, N/S
+            shift: "D/S", // D/S, N/S
             time: "9:40",
             auditorId: 4,
             auditorName: "CL",
@@ -88,11 +92,11 @@ export default function WalkthroughPage() {
         },
         {
             id: 3,
-            date: new Date("14/03/2024"),
+            date: new Date("2024-03-27"),
             species: "Ovine", // Ovine
             departmentId: 5,
             departmentName: "FP 2",
-            shift: "DS", // D/S, N/S
+            shift: "D/S", // D/S, N/S
             time: "9:40",
             auditorId: 4,
             auditorName: "CL",
@@ -105,11 +109,11 @@ export default function WalkthroughPage() {
         },
         {
             id: 4,
-            date: new Date("14/03/2024"),
+            date: new Date("2024-03-27"),
             species: "Ovine", // Ovine
             departmentId: 4,
             departmentName: "FP 1",
-            shift: "NS", // D/S, N/S
+            shift: "N/S", // D/S, N/S
             time: "9:40",
             auditorId: 4,
             auditorName: "CL",
@@ -122,11 +126,11 @@ export default function WalkthroughPage() {
         },
         {
             id: 7,
-            date: new Date("14/03/2024"),
+            date: new Date("2024-03-27"),
             species: "Ovine", // Ovine
             departmentId: 5,
             departmentName: "FP 2",
-            shift: "NS", // D/S, N/S
+            shift: "N/S", // D/S, N/S
             time: "9:40",
             auditorId: 4,
             auditorName: "CL",
@@ -194,20 +198,55 @@ export default function WalkthroughPage() {
     const columns: GridColDef[] = [
         { field: "id", headerName: "ID", width: 50 },
         { field: "date", headerName: "Date", width: 90, editable: true, type: "date" },
-        { field: "species", headerName: "Species", width: 120, editable: true, type: "text" },
-        { field: "departmentName", headerName: "Department", width: 100, editable: true, type: "text" },
-        { field: "shift", headerName: "Shift", width: 90 },
-        { field: "time", headerName: "Time", width: 90 },
-        { field: "auditorName", headerName: "Auditor", width: 90 },
-        { field: "actionDes", headerName: "Procedure/Area Verified", width: 120 },
-        { field: "compliant", headerName: "Compliant", width: 90 },
-        { field: "status", headerName: "Status", width: 90 },
-        { field: "comments", headerName: "Comments", width: 300 },
-        { field: "correctiveAction", headerName: "Corrective Action", width: 300 },
+        { field: "species", headerName: "Species", width: 120, editable: true, type: "string" },
+        {
+            field: "departmentName", headerName: "Department", width: 100, editable: true, type: "singleSelect",
+            getOptionValue: (value: any) => value.name,
+            getOptionLabel: (value: any) => value.name,
+            valueOptions: departments
+        },
+        { field: "shift", headerName: "Shift", width: 90, editable: true, type: "singleSelect", valueOptions: ['D/S', 'N/S'] },
+        { field: "time", headerName: "Time", width: 90, editable: true, type: "string" },
+        {
+            field: "auditorId", headerName: "Auditor", width: 90, editable: true, type: "singleSelect",
+            getOptionValue: (value: any) => value.id,
+            getOptionLabel: (value: any) => value.name,
+            valueOptions: auditors
+        },
+        {
+            field: "actionDes", headerName: "Procedure/Area Verified", width: 120, editable: true, type: "singleSelect",
+            getOptionValue: (value: any) => value.description,
+            getOptionLabel: (value: any) => value.description,
+            valueOptions: actions
+        },
+        { field: "compliant", headerName: "Compliant", width: 90, editable: true, type: "singleSelect", valueOptions: ['Yes', 'No'] },
+        { field: "status", headerName: "Status", width: 90, editable: true, type: "singleSelect", valueOptions: ['Open', 'Closed'] },
+        { field: "comments", headerName: "Comments", width: 300, editable: true, type: "string" },
+        { field: "correctiveAction", headerName: "Corrective Action", width: 300, editable: true, type: "string" },
         {
             field: 'actions', type: "actions", headerName: "Actions",
             width: 100,
             getActions: ({ id }) => {
+                let isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+
+                if (isInEditMode) {
+                    return [
+                        <GridActionsCellItem
+                            icon={<SaveIcon />}
+                            label="Save"
+                            sx={{
+                                color: 'primary.main'
+                            }}
+                            onClick={handleSaveClick(id)}
+                        />,
+                        <GridActionsCellItem
+                            icon={<CancelIcon />}
+                            label="Cancel"
+                            onClick={handleCanceClick(id)}
+                            color="inherit"
+                        />
+                    ]
+                }
                 return [
                     <GridActionsCellItem
                         icon={<EditIcon />}
