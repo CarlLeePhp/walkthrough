@@ -1,17 +1,27 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Walkthrough } from "../../models/Walkthrough";
-import { Department } from "../../models/Department";
 
 import { RootState } from "../../app/store/configureStore";
 
 import { useAppSelector, useAppDispatch } from "../../app/store/hooks";
 import { departmentSelector } from "../department/departmentSlice";
-import { addWalkthrough, updateWalkthrough } from "./walkthroughSlice";
+import { addWalkthrough, removeWalkthrough, updateWalkthrough } from "./walkthroughSlice";
 
-import { DataGrid, GridColDef, GridValueGetterParams } from "@mui/x-data-grid";
-import { Button, Modal, Card, CardContent, CardActions, TextField, MenuItem } from "@mui/material";
+import {
+    DataGrid, GridActionsCellItem, GridColDef, GridEventListener, GridRowEditStopReasons, GridRowModesModel,
+    GridRowId,
+    GridRowModes,
+    GridRowsProp,
+    GridRowModel
+} from "@mui/x-data-grid";
+import { Button } from "@mui/material";
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/DeleteOutline';
+
+
 
 export default function WalkthroughPage() {
+
     const emptyWalkthrough: Walkthrough = {
         id: 0,
         date: "",
@@ -28,9 +38,10 @@ export default function WalkthroughPage() {
         status: "Open",
         comments: "",
         correctiveAction: "",
+
     };
 
-    const [selectedWalkthrough, setSelectedWalkthrough] = useState<Walkthrough>(emptyWalkthrough);
+
 
     const walkthroughs = useAppSelector((state: RootState) => state.walkthrough.walkthroughs);
     const auditors = useAppSelector((state: RootState) => state.auditor.auditors);
@@ -39,15 +50,152 @@ export default function WalkthroughPage() {
 
     const departments = useAppSelector(departmentSelector);
 
-    const [open, setOpen] = useState(false);
-    const [isEdit, setIsEdit] = useState(false);
-
     // DataGrid
+    const initialRows: GridRowsProp = [
+        {
+            id: 1,
+            date: new Date(),
+            species: "Ovine", // Ovine
+            departmentId: 1,
+            departmentName: "Stock Yards",
+            shift: "DS", // D/S, N/S
+            time: "9:40",
+            auditorId: 4,
+            auditorName: "CL",
+            actionId: 1,
+            actionDes: "Animal Welfare",
+            compliant: "Yes",
+            status: "Closed", // Open, Closed
+            comments: "Obeserved animals unloaded by transporter, no slipings were identified. Nee more words to see filling the 3rd line. Maybe it is enough.",
+            correctiveAction: "",
+        },
+        {
+            id: 2,
+            date: new Date("14/03/2024"),
+            species: "Ovine", // Ovine
+            departmentId: 4,
+            departmentName: "FP 1",
+            shift: "DS", // D/S, N/S
+            time: "9:40",
+            auditorId: 4,
+            auditorName: "CL",
+            actionId: 1,
+            actionDes: "Pre-Trim",
+            compliant: "Yes",
+            status: "Closed", // Open, Closed
+            comments: "Checked 10 carcasses post pre-trim, no defects were identified",
+            correctiveAction: "",
+        },
+        {
+            id: 3,
+            date: new Date("14/03/2024"),
+            species: "Ovine", // Ovine
+            departmentId: 5,
+            departmentName: "FP 2",
+            shift: "DS", // D/S, N/S
+            time: "9:40",
+            auditorId: 4,
+            auditorName: "CL",
+            actionId: 1,
+            actionDes: "Pre-Trim",
+            compliant: "Yes",
+            status: "Closed", // Open, Closed
+            comments: "Checked 10 carcasses post pre-trim, no defects were identified",
+            correctiveAction: "",
+        },
+        {
+            id: 4,
+            date: new Date("14/03/2024"),
+            species: "Ovine", // Ovine
+            departmentId: 4,
+            departmentName: "FP 1",
+            shift: "NS", // D/S, N/S
+            time: "9:40",
+            auditorId: 4,
+            auditorName: "CL",
+            actionId: 1,
+            actionDes: "Pre-Trim",
+            compliant: "Yes",
+            status: "Closed", // Open, Closed
+            comments: "Checked 10 carcasses post pre-trim, no defects were identified",
+            correctiveAction: "",
+        },
+        {
+            id: 7,
+            date: new Date("14/03/2024"),
+            species: "Ovine", // Ovine
+            departmentId: 5,
+            departmentName: "FP 2",
+            shift: "NS", // D/S, N/S
+            time: "9:40",
+            auditorId: 4,
+            auditorName: "CL",
+            actionId: 1,
+            actionDes: "Pre-Trim",
+            compliant: "Yes",
+            status: "Closed", // Open, Closed
+            comments: "Checked 10 carcasses post pre-trim, no defects were identified",
+            correctiveAction: "",
+        },
+    ];
+
+    const [rows, setRows] = useState(initialRows);
+    const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
+
+    const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
+        if (params.reason === GridRowEditStopReasons.rowFocusOut) {
+            event.defaultMuiPrevented = true;
+        }
+    };
+
+    const handleNewClick = () => {
+        let newId = walkthroughs.length + 5;
+        emptyWalkthrough.id = newId;
+        setRows([...rows, emptyWalkthrough])
+        setRowModesModel({ ...rowModesModel, [newId]: { mode: GridRowModes.Edit } });
+        dispatch(addWalkthrough(emptyWalkthrough));
+
+    }
+    const handleEditClick = (id: GridRowId) => () => {
+        console.log("Row ID is: " + id);
+        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+    };
+
+    const handleSaveClick = (id: GridRowId) => () => {
+        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+    }
+
+    const handleDeleteClick = (id: GridRowId) => () => {
+        let deleteId = typeof (id) === "number" ? id : parseInt(id);
+        dispatch(removeWalkthrough(deleteId));
+    }
+
+    const handleCanceClick = (id: GridRowId) => () => {
+        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View, ignoreModifications: true } })
+        let editedId = typeof (id) === "number" ? id : parseInt(id);
+        let editedRow = rows.find(r => r.id === id);
+        if (editedRow!.isNew) {
+            setRows(rows.filter(row => row.id !== id));
+            dispatch(removeWalkthrough(editedId));
+        }
+    }
+
+    const processRowUpdate = (newRow: GridRowModel) => {
+
+        let updatedRow = { ...newRow, isNew: false };
+        setRows(rows.map(row => (row.id === newRow.id ? updatedRow : row)));
+        return updatedRow;
+    }
+
+    const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
+        setRowModesModel(newRowModesModel);
+    }
+
     const columns: GridColDef[] = [
         { field: "id", headerName: "ID", width: 50 },
-        { field: "date", headerName: "Date", width: 90 },
-        { field: "species", headerName: "Species", width: 120 },
-        { field: "departmentName", headerName: "Department", width: 100 },
+        { field: "date", headerName: "Date", width: 90, editable: true, type: "date" },
+        { field: "species", headerName: "Species", width: 120, editable: true, type: "text" },
+        { field: "departmentName", headerName: "Department", width: 100, editable: true, type: "text" },
         { field: "shift", headerName: "Shift", width: 90 },
         { field: "time", headerName: "Time", width: 90 },
         { field: "auditorName", headerName: "Auditor", width: 90 },
@@ -56,82 +204,28 @@ export default function WalkthroughPage() {
         { field: "status", headerName: "Status", width: 90 },
         { field: "comments", headerName: "Comments", width: 300 },
         { field: "correctiveAction", headerName: "Corrective Action", width: 300 },
-    ];
-
-    function newWalkthrough() {
-        setOpen(true);
-        setIsEdit(false);
-        let newId = walkthroughs.length + 1;
-
-        setSelectedWalkthrough(Object.assign(selectedWalkthrough, { id: newId }));
-    }
-
-    // For Modal
-    function closeModal() {
-        setOpen(false);
-    }
-
-    function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
-        let data = Object.assign({}, selectedWalkthrough);
-        switch (e.target.name) {
-            // Becarful the format of date
-            case "date":
-                data["date"] = e.target.value;
-                break;
-            case "species":
-                data["species"] = e.target.value;
-                break;
-            case "shift":
-                data["shift"] = e.target.value;
-                break;
-            case "department":
-                data["departmentId"] = Number(e.target.value);
-                for (let i = 0; i < departments.length; i++) {
-                    if (departments[i].id === Number(e.target.value)) data["departmentName"] = departments[i].name;
-                }
-                break;
-            case "auditor":
-                data["auditorId"] = Number(e.target.value);
-                for (let i = 0; i < auditors.length; i++) {
-                    if (auditors[i].id === Number(e.target.value)) data["auditorName"] = auditors[i].name;
-                }
-                break;
-            case "action":
-                data["actionId"] = Number(e.target.value);
-                for (let i = 0; i < auditors.length; i++) {
-                    if (actions[i].id === Number(e.target.value)) data["actionDes"] = actions[i].description;
-                }
-                break;
-            case "time":
-                data["time"] = e.target.value;
-                break;
-            case "compliant":
-                data["compliant"] = e.target.value;
-                if (data["compliant"] === "Yes") data["status"] = "Closed";
-                break;
-            case "status":
-                data["status"] = e.target.value;
-                break;
-            case "comments":
-                data["comments"] = e.target.value;
-                break;
-            case "correctiveAction":
-                data["correctiveAction"] = e.target.value;
-                break;
-            default:
-                console.log("Errors for handling change.");
+        {
+            field: 'actions', type: "actions", headerName: "Actions",
+            width: 100,
+            getActions: ({ id }) => {
+                return [
+                    <GridActionsCellItem
+                        icon={<EditIcon />}
+                        label="Edit"
+                        className="textPrimary"
+                        onClick={handleEditClick(id)}
+                        color="inherit"
+                    />,
+                    <GridActionsCellItem
+                        icon={<DeleteIcon />}
+                        label="Delete"
+                        onClick={handleDeleteClick(id)}
+                        color="inherit"
+                    />
+                ]
+            }
         }
-        setSelectedWalkthrough(data);
-    }
-
-    function handleAdd() {
-        dispatch(addWalkthrough(selectedWalkthrough));
-        setSelectedWalkthrough(emptyWalkthrough);
-        setOpen(false);
-    }
-
-    function handleUpdate() {}
-    // End for Modal
+    ];
 
     return (
         <div>
@@ -139,13 +233,18 @@ export default function WalkthroughPage() {
 
             <h6>Data Grid</h6>
 
-            <Button variant="contained" color="primary" onClick={newWalkthrough} sx={{ position: "fixed", top: "80px", right: "20px" }}>
+            <Button variant="contained" color="primary" onClick={handleNewClick} sx={{ position: "fixed", top: "80px", right: "20px" }}>
                 New
             </Button>
 
             <DataGrid
-                rows={walkthroughs}
+                rows={rows}
                 columns={columns}
+                editMode="row"
+                rowModesModel={rowModesModel}
+                onRowModesModelChange={handleRowModesModelChange}
+                onRowEditStop={handleRowEditStop}
+                processRowUpdate={processRowUpdate}
                 initialState={{
                     pagination: {
                         paginationModel: {
@@ -154,138 +253,8 @@ export default function WalkthroughPage() {
                     },
                 }}
                 pageSizeOptions={[5, 10]}
-                checkboxSelection
-                disableRowSelectionOnClick
                 getRowHeight={() => "auto"}
             />
-
-            <Modal open={open} onClose={closeModal} sx={{ position: "absolute", top: "10%", left: "10%" }}>
-                <Card variant="outlined" sx={{ maxWidth: "80%" }}>
-                    <CardContent>
-                        <TextField type="date" name="date" label="Date" value={selectedWalkthrough.date} onChange={handleChange} margin="normal" sx={{ marginRight: "10px" }} />
-                        <TextField
-                            select
-                            name="species"
-                            label="Species"
-                            defaultValue="Ovine"
-                            value={selectedWalkthrough.species}
-                            onChange={handleChange}
-                            margin="normal"
-                            sx={{ marginRight: "10px", minWidth: "100px" }}
-                        >
-                            <MenuItem value="Bobby">Bobby</MenuItem>
-                            <MenuItem value="Bovine">Bovine</MenuItem>
-                            <MenuItem value="Cervine">Cervine</MenuItem>
-                            <MenuItem value="Ovine">Ovine</MenuItem>
-                        </TextField>
-                        <TextField
-                            select
-                            name="department"
-                            label="Department"
-                            defaultValue={1}
-                            value={selectedWalkthrough.departmentId}
-                            onChange={handleChange}
-                            margin="normal"
-                            sx={{ marginRight: "10px", minWidth: "120px" }}
-                        >
-                            {departments.map((d) => (
-                                <MenuItem key={d.id} value={d.id}>
-                                    {d.name}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                        <TextField
-                            select
-                            name="shift"
-                            label="Shift"
-                            defaultValue="D/S"
-                            value={selectedWalkthrough.shift}
-                            onChange={handleChange}
-                            margin="normal"
-                            sx={{ marginRight: "10px", minWidth: "80px" }}
-                        >
-                            <MenuItem value="D/S">D/S</MenuItem>
-                            <MenuItem value="N/S">N/S</MenuItem>
-                        </TextField>
-                        <TextField type="time" name="time" label="Time" value={selectedWalkthrough.time} onChange={handleChange} margin="normal" sx={{ marginRight: "10px", minWidth: "80px" }} />
-                        <TextField
-                            select
-                            name="auditor"
-                            label="Auditor"
-                            defaultValue={1}
-                            value={selectedWalkthrough.auditorId}
-                            onChange={handleChange}
-                            margin="normal"
-                            sx={{ marginRight: "10px", minWidth: "120px" }}
-                        >
-                            {auditors.map((a) => (
-                                <MenuItem key={a.id} value={a.id}>
-                                    {a.name}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                        <TextField
-                            select
-                            name="action"
-                            label="Procedure/Area Verified"
-                            defaultValue={1}
-                            value={selectedWalkthrough.actionId}
-                            onChange={handleChange}
-                            margin="normal"
-                            sx={{ marginRight: "10px", minWidth: "180px" }}
-                        >
-                            {actions.map((a) => (
-                                <MenuItem key={a.id} value={a.id}>
-                                    {a.description}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-
-                        <TextField
-                            select
-                            name="compliant"
-                            label="Compliant"
-                            defaultValue="Yes"
-                            value={selectedWalkthrough.compliant}
-                            onChange={handleChange}
-                            margin="normal"
-                            sx={{ marginRight: "10px", minWidth: "100px" }}
-                        >
-                            <MenuItem value="Yes">Yes</MenuItem>
-                            <MenuItem value="No">No</MenuItem>
-                        </TextField>
-                        <TextField select name="status" label="Status" value={selectedWalkthrough.status} onChange={handleChange} margin="normal" sx={{ marginRight: "10px", minWidth: "80px" }}>
-                            <MenuItem value="Open">Open</MenuItem>
-                            <MenuItem value="Closed">Closed</MenuItem>
-                        </TextField>
-                        <TextField name="comments" label="Comments" value={selectedWalkthrough.comments} onChange={handleChange} fullWidth multiline minRows={2} margin="normal" />
-                        <TextField
-                            name="correctiveAction"
-                            label="Corrective Actions"
-                            value={selectedWalkthrough.correctiveAction}
-                            onChange={handleChange}
-                            fullWidth
-                            multiline
-                            minRows={2}
-                            margin="normal"
-                        />
-                    </CardContent>
-                    <CardActions>
-                        {isEdit ? (
-                            <Button variant="contained" color="primary" onClick={handleUpdate}>
-                                Update
-                            </Button>
-                        ) : (
-                            <Button variant="contained" color="primary" onClick={handleAdd}>
-                                Add
-                            </Button>
-                        )}
-                        <Button variant="contained" color="secondary" onClick={closeModal}>
-                            Cancel
-                        </Button>
-                    </CardActions>
-                </Card>
-            </Modal>
         </div>
     );
 }

@@ -85,7 +85,7 @@ const initialState: WalkthroughState = {
             correctiveAction: "",
         },
         {
-            id: 5,
+            id: 7,
             date: "14/03/2024",
             species: "Ovine", // Ovine
             departmentId: 5,
@@ -119,9 +119,16 @@ export const walkthroughSlice = createSlice({
             // May have trouble
             state.walkthroughs[itemIdex] = action.payload;
         },
+        removeWalkthrough: (state, action: PayloadAction<Number>) => {
+            let itemIdex = state.walkthroughs.findIndex((i) => i.id === action.payload);
+            //not found
+            if (itemIdex === -1 || itemIdex === undefined) return;
+
+            state.walkthroughs.splice(itemIdex, 1);
+        }
     },
 });
 
-export const { addWalkthrough, updateWalkthrough } = walkthroughSlice.actions;
+export const { addWalkthrough, updateWalkthrough, removeWalkthrough } = walkthroughSlice.actions;
 
 export default walkthroughSlice.reducer;
