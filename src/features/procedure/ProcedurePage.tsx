@@ -1,40 +1,41 @@
 import { useAppDispatch, useAppSelector } from "../../app/store/hooks";
-import { addDepartment, departmentSelector, setDepartments, updateDepartment, removeDepartment } from "./departmentSlice";
+import { RootState } from "../../app/store/configureStore";
+import { addProcedure, setProcedures, updateProcedure, removeProcedure } from "./procedureSlice";
 import { useEffect, useState } from "react";
-import { Department } from "../../models/Department";
+import { Procedure } from "../../models/Procedure";
 import agent from "../../app/api/agent";
 import { Button, Card, CardActions, CardContent, Modal, Table, TableBody, TableCell, TableHead, TableRow, TextField } from "@mui/material";
 
-export default function DepartmentPage() {
+export default function ProcedurePage() {
     const [isEdit, setIsEdit] = useState(false);
     const [open, setOpen] = useState(false);
-    const [selectedName, setSelectedName] = useState<string>("");
+    const [selectedProcedure, setSelectedProcedure] = useState<string>("");
     const [selectedId, setSelectedId] = useState<number>(0);
 
-    const departments = useAppSelector(departmentSelector);
+    const procedures = useAppSelector((state: RootState) => state.procedure.procedures);
 
     const dispatch = useAppDispatch();
 
     useEffect(() => {
-        agent.Departments.list().then(data => {
-            let initialDepartments: Department[] = data;
-            dispatch(setDepartments(initialDepartments));
+        agent.Procedures.list().then(data => {
+            let initialProcedures: Procedure[] = data;
+            dispatch(setProcedures(initialProcedures));
         })
     }, []);
 
-    function newDepartment() {
+    function newProcedure() {
         setOpen(true);
         setIsEdit(false);
-        setSelectedName("");
+        setSelectedProcedure("");
         setSelectedId(0);
     }
 
-    function editDepartment(id: number) {
+    function editProcedure(id: number) {
         setOpen(true);
         setIsEdit(true);
-        for (let i = 0; i < departments.length; i++) {
-            if (departments[i].id === id) {
-                setSelectedName(departments[i].name);
+        for (let i = 0; i < procedures.length; i++) {
+            if (procedures[i].id === id) {
+                setSelectedProcedure(procedures[i].description);
                 setSelectedId(id);
             }
         }
@@ -44,59 +45,57 @@ export default function DepartmentPage() {
         setOpen(false);
     }
 
-    function handleAddDepartment() {
-        let newDepartment: Department = {
+    function handleAddProcedure() {
+        let newProcedure: Procedure = {
             id: 0,
-            name: selectedName,
+            description: selectedProcedure,
             isActive: true
         }
-        agent.Departments.addDepartment(newDepartment)
-            .then(department => dispatch(addDepartment(department)))
+        agent.Procedures.addProcedure(newProcedure)
+            .then(procedure => dispatch(addProcedure(procedure)))
             .catch(error => console.log(error))
             .finally(() => setOpen(false))
     }
 
-    function handleEditDepartment() {
-        let editDepartment: Department = {
+    function handleEditProcedure() {
+        let editProcedure: Procedure = {
             id: selectedId,
-            name: selectedName,
+            description: selectedProcedure,
             isActive: true,
         };
-        agent.Departments.update(editDepartment)
-            .then(d => dispatch(updateDepartment(d)))
-            .catch(error => console.log(error))
-            .finally(() => setOpen(false));
+        dispatch(updateProcedure(editProcedure));
+        setOpen(false);
     }
 
-    const handleDeleteDepartment = (id: number) => {
-        agent.Departments.remove(id)
-            .then(() => dispatch(removeDepartment(id)))
+    const handleDeleteProcedure = (id: number) => {
+        agent.Procedures.removeProcedure(id)
+            .then(() => dispatch(removeProcedure(id)))
             .catch(error => console.log(error))
     }
 
     return (
         <div>
-            <h2>Department Management</h2>
+            <h2>Procedure/Area Verified Management</h2>
 
-            <Button variant="contained" color="primary" onClick={newDepartment} sx={{ position: "fixed", top: "80px", right: "20px" }}>
+            <Button variant="contained" color="primary" onClick={newProcedure} sx={{ position: "fixed", top: "80px", right: "20px" }}>
                 New
             </Button>
             <Table aria-label="simple table">
                 <TableHead>
                     <TableRow>
-                        <TableCell>Department Name</TableCell>
+                        <TableCell>Description</TableCell>
                         <TableCell>Actions</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {departments.map((d) => (
-                        <TableRow key={d.id}>
-                            <TableCell>{d.name}</TableCell>
+                    {procedures.map((i) => (
+                        <TableRow key={i.id}>
+                            <TableCell>{i.description}</TableCell>
                             <TableCell>
-                                <Button variant="contained" color="primary" onClick={() => editDepartment(d.id)}>
+                                <Button variant="contained" color="primary" onClick={() => editProcedure(i.id)}>
                                     Edit
                                 </Button>
-                                <Button variant="contained" color="error" onClick={() => handleDeleteDepartment(d.id)} sx={{ marginLeft: "10px" }}>
+                                <Button variant="contained" color="error" onClick={() => handleDeleteProcedure(i.id)} sx={{ marginLeft: "10px" }}>
                                     Delete
                                 </Button>
                             </TableCell>
@@ -108,15 +107,15 @@ export default function DepartmentPage() {
             <Modal open={open} onClose={closeModal} sx={{ position: "absolute", top: "40%", left: "40%" }}>
                 <Card variant="outlined" sx={{ maxWidth: "400px" }}>
                     <CardContent>
-                        <TextField type="text" label="Name" placeholder="Department Name" value={selectedName} onChange={(e) => setSelectedName(e.target.value)} />
+                        <TextField type="text" label="Description" placeholder="Procedure/Area Verified" value={selectedProcedure} onChange={(e) => setSelectedProcedure(e.target.value)} />
                     </CardContent>
                     <CardActions>
                         {isEdit ? (
-                            <Button variant="contained" color="primary" onClick={handleEditDepartment}>
+                            <Button variant="contained" color="primary" onClick={handleEditProcedure}>
                                 Update
                             </Button>
                         ) : (
-                            <Button variant="contained" color="primary" onClick={handleAddDepartment}>
+                            <Button variant="contained" color="primary" onClick={handleAddProcedure}>
                                 Add
                             </Button>
                         )}

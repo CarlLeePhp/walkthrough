@@ -3,13 +3,15 @@ import departmentReducer from "../../features/department/departmentSlice";
 import walkthroughReducer from "../../features/walkthrough/walkthroughSlice";
 import auditorReducer from "../../features/auditor/auditorSlice";
 import actionReducer from "../../features/action/actionSlice";
+import procedureReducer from "../../features/procedure/procedureSlice";
 
 export const store = configureStore({
     reducer: {
         department: departmentReducer,
         walkthrough: walkthroughReducer,
         auditor: auditorReducer,
-        action: actionReducer
+        action: actionReducer,
+        procedure: procedureReducer
     },
 });
 

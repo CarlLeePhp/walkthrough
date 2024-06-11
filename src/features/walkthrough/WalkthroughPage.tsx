@@ -208,9 +208,9 @@ export default function WalkthroughPage() {
         { field: "shift", headerName: "Shift", width: 90, editable: true, type: "singleSelect", valueOptions: ['D/S', 'N/S'] },
         { field: "time", headerName: "Time", width: 90, editable: true, type: "string" },
         {
-            field: "auditorId", headerName: "Auditor", width: 90, editable: true, type: "singleSelect",
-            getOptionValue: (value: any) => value.id,
-            getOptionLabel: (value: any) => value.name,
+            field: "auditorName", headerName: "Auditor", width: 90, editable: true, type: "singleSelect",
+            getOptionValue: (auditor: any) => auditor.name,
+            getOptionLabel: (auditor: any) => auditor.name,
             valueOptions: auditors
         },
         {

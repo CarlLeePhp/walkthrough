@@ -18,12 +18,12 @@ const initialState: WalkthroughState = {
     walkthroughs: [
         {
             id: 1,
-            date: "14/03/2024",
+            date: "2024-03-27",
             species: "Ovine", // Ovine
             departmentId: 1,
             departmentName: "Stock Yards",
-            shift: "DS", // D/S, N/S
-            time: "9:40",
+            shift: "D/S", // D/S, N/S
+            time: "09:40",
             auditorId: 4,
             auditorName: "CL",
             actionId: 1,
@@ -35,12 +35,12 @@ const initialState: WalkthroughState = {
         },
         {
             id: 2,
-            date: "14/03/2024",
+            date: "2024-03-27",
             species: "Ovine", // Ovine
             departmentId: 4,
             departmentName: "FP 1",
-            shift: "DS", // D/S, N/S
-            time: "9:40",
+            shift: "D/S", // D/S, N/S
+            time: "09:40",
             auditorId: 4,
             auditorName: "CL",
             actionId: 1,
@@ -52,12 +52,12 @@ const initialState: WalkthroughState = {
         },
         {
             id: 3,
-            date: "14/03/2024",
+            date: "2024-03-27",
             species: "Ovine", // Ovine
             departmentId: 5,
             departmentName: "FP 2",
-            shift: "DS", // D/S, N/S
-            time: "9:40",
+            shift: "D/S", // D/S, N/S
+            time: "09:40",
             auditorId: 4,
             auditorName: "CL",
             actionId: 1,
@@ -69,12 +69,12 @@ const initialState: WalkthroughState = {
         },
         {
             id: 4,
-            date: "14/03/2024",
+            date: "2024-03-27",
             species: "Ovine", // Ovine
             departmentId: 4,
             departmentName: "FP 1",
-            shift: "NS", // D/S, N/S
-            time: "9:40",
+            shift: "N/S", // D/S, N/S
+            time: "09:40",
             auditorId: 4,
             auditorName: "CL",
             actionId: 1,
@@ -86,12 +86,12 @@ const initialState: WalkthroughState = {
         },
         {
             id: 7,
-            date: "14/03/2024",
+            date: "2024-03-27",
             species: "Ovine", // Ovine
             departmentId: 5,
             departmentName: "FP 2",
-            shift: "NS", // D/S, N/S
-            time: "9:40",
+            shift: "N/S", // D/S, N/S
+            time: "19:40",
             auditorId: 4,
             auditorName: "CL",
             actionId: 1,
@@ -119,7 +119,7 @@ export const walkthroughSlice = createSlice({
             // May have trouble
             state.walkthroughs[itemIdex] = action.payload;
         },
-        removeWalkthrough: (state, action: PayloadAction<Number>) => {
+        removeWalkthrough: (state, action: PayloadAction<number>) => {
             let itemIdex = state.walkthroughs.findIndex((i) => i.id === action.payload);
             //not found
             if (itemIdex === -1 || itemIdex === undefined) return;

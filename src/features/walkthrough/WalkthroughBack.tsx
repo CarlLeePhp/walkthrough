@@ -5,10 +5,12 @@ import { RootState } from "../../app/store/configureStore";
 
 import { useAppSelector, useAppDispatch } from "../../app/store/hooks";
 import { departmentSelector } from "../department/departmentSlice";
-import { addWalkthrough } from "./walkthroughSlice";
+import { addWalkthrough, removeWalkthrough, updateWalkthrough } from "./walkthroughSlice";
 
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridActionsCellItem, GridRowId } from "@mui/x-data-grid";
 import { Button, Modal, Card, CardContent, CardActions, TextField, MenuItem } from "@mui/material";
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/DeleteOutline';
 
 export default function WalkthroughBack() {
     const emptyWalkthrough: Walkthrough = {
@@ -41,6 +43,8 @@ export default function WalkthroughBack() {
 
     const [open, setOpen] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
+    const [isNew, setIsNew] = useState(false);
+    const [isDelete, setIsDelete] = useState(false);
 
     // DataGrid
     const columns: GridColDef[] = [
@@ -56,11 +60,32 @@ export default function WalkthroughBack() {
         { field: "status", headerName: "Status", width: 90 },
         { field: "comments", headerName: "Comments", width: 300 },
         { field: "correctiveAction", headerName: "Corrective Action", width: 300 },
+        {
+            field: 'actions', type: "actions", headerName: "Actions",
+            width: 100,
+            getActions: ({ id }) => {
+                return [
+                    <GridActionsCellItem
+                        icon={<EditIcon />}
+                        label="Edit"
+                        className="textPrimary"
+                        onClick={() => handleSelect(id)}
+                        color="inherit"
+                    />,
+                    <GridActionsCellItem
+                        icon={<DeleteIcon />}
+                        label="Delete"
+                        onClick={() => handleDelete(id)}
+                        color="inherit"
+                    />
+                ]
+            }
+        }
     ];
 
     function newWalkthrough() {
         setOpen(true);
-        setIsEdit(false);
+        setIsNew(true);
         let newId = walkthroughs.length + 1;
 
         setSelectedWalkthrough(Object.assign(selectedWalkthrough, { id: newId }));
@@ -124,13 +149,46 @@ export default function WalkthroughBack() {
         setSelectedWalkthrough(data);
     }
 
-    function handleAdd() {
-        dispatch(addWalkthrough(selectedWalkthrough));
+    function handleConfirm() { // add, update, or delete
+        // Update
+        if (isEdit) {
+            dispatch(updateWalkthrough(selectedWalkthrough));
+        }
+
+        // Delete
+        else if (isDelete) {
+            dispatch(removeWalkthrough(selectedWalkthrough.id));
+        }
+
+        // Add
+        else {
+            dispatch(addWalkthrough(selectedWalkthrough));
+        }
+
         setSelectedWalkthrough(emptyWalkthrough);
         setOpen(false);
+        setIsNew(false)
+        setIsEdit(false);
+        setIsDelete(false);
     }
 
-    function handleUpdate() { }
+    function handleSelect(id: GridRowId) {
+        let editedWalkthrough = walkthroughs.find(w => w.id === id);
+        if (editedWalkthrough !== undefined) {
+            setSelectedWalkthrough(editedWalkthrough);
+            setIsEdit(true);
+            setOpen(true)
+        }
+    }
+
+    function handleDelete(id: GridRowId) {
+        let editedWalkthrough = walkthroughs.find(w => w.id === id);
+        if (editedWalkthrough !== undefined) {
+            setSelectedWalkthrough(editedWalkthrough);
+            setIsDelete(true);
+            setOpen(true)
+        }
+    }
     // End for Modal
 
     return (
@@ -149,12 +207,11 @@ export default function WalkthroughBack() {
                 initialState={{
                     pagination: {
                         paginationModel: {
-                            pageSize: 5,
+                            pageSize: 10,
                         },
                     },
                 }}
-                pageSizeOptions={[5, 10]}
-                checkboxSelection
+                pageSizeOptions={[10, 20]}
                 disableRowSelectionOnClick
                 getRowHeight={() => "auto"}
             />
@@ -162,6 +219,9 @@ export default function WalkthroughBack() {
             <Modal open={open} onClose={closeModal} sx={{ position: "absolute", top: "10%", left: "10%" }}>
                 <Card variant="outlined" sx={{ maxWidth: "80%" }}>
                     <CardContent>
+                        {isNew && (<h4>Add a new Walkthrough</h4>)}
+                        {isEdit && (<h4>Update this Walkthrough</h4>)}
+                        {isDelete && (<h4>Please confirm to delete this Walkthrough</h4>)}
                         <TextField type="date" name="date" label="Date" value={selectedWalkthrough.date} onChange={handleChange} margin="normal" sx={{ marginRight: "10px" }} />
                         <TextField
                             select
@@ -271,15 +331,9 @@ export default function WalkthroughBack() {
                         />
                     </CardContent>
                     <CardActions>
-                        {isEdit ? (
-                            <Button variant="contained" color="primary" onClick={handleUpdate}>
-                                Update
-                            </Button>
-                        ) : (
-                            <Button variant="contained" color="primary" onClick={handleAdd}>
-                                Add
-                            </Button>
-                        )}
+                        <Button variant="contained" color="primary" onClick={handleConfirm}>
+                            Confirm
+                        </Button>
                         <Button variant="contained" color="secondary" onClick={closeModal}>
                             Cancel
                         </Button>
