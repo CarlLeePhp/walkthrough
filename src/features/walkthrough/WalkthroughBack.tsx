@@ -102,6 +102,7 @@ export default function WalkthroughBack() {
             // Becarful the format of date
             case "date":
                 data["date"] = e.target.value;
+                console.log(data["date"]);
                 break;
             case "species":
                 data["species"] = e.target.value;
@@ -129,6 +130,7 @@ export default function WalkthroughBack() {
                 break;
             case "time":
                 data["time"] = e.target.value;
+                console.log(data["time"]);
                 break;
             case "compliant":
                 data["compliant"] = e.target.value;
