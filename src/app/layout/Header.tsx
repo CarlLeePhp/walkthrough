@@ -28,7 +28,7 @@ export default function Header() {
     return (
         <AppBar position="static" sx={{ mb: 4 }}>
             <Toolbar>
-                <Typography variant="h5" component={NavLink} to='/' sx={navStyles}>Wakthrough</Typography>
+                <Typography variant="h5" component={NavLink} to='/' sx={navStyles}>LNV WT</Typography>
                 <List sx={{ display: 'flex' }}>
                     <ListItem component={Button} sx={navStyles} onClick={handleMenu}>
                         Data
