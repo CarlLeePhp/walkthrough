@@ -8,7 +8,12 @@ interface DepartmentState {
 
 const initialState: DepartmentState = {
     departments: [
-
+        { id: 1, name: 'Stock Yards', isActive: true },
+        { id: 2, name: 'Slaughterboard', isActive: true },
+        { id: 3, name: 'Chillers', isActive: true },
+        { id: 4, name: 'FP 1', isActive: true },
+        { id: 5, name: 'FP 2', isActive: true },
+        { id: 6, name: 'FP 5', isActive: true }
     ],
 };
 

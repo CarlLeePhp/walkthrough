@@ -15,14 +15,14 @@ export default function ProcedurePage() {
     const procedures = useAppSelector((state: RootState) => state.procedure.procedures);
 
     const dispatch = useAppDispatch();
-
+    /*
     useEffect(() => {
         agent.Procedures.list().then(data => {
             let initialProcedures: Procedure[] = data;
             dispatch(setProcedures(initialProcedures));
         })
     }, []);
-
+    */
     function newProcedure() {
         setOpen(true);
         setIsEdit(false);
@@ -51,10 +51,15 @@ export default function ProcedurePage() {
             description: selectedProcedure,
             isActive: true
         }
+        /*
         agent.Procedures.addProcedure(newProcedure)
             .then(procedure => dispatch(addProcedure(procedure)))
             .catch(error => console.log(error))
             .finally(() => setOpen(false))
+            */
+        newProcedure.id = procedures.length + 1;
+        dispatch(addProcedure(newProcedure))
+        setOpen(false)
     }
 
     function handleEditProcedure() {
@@ -68,9 +73,12 @@ export default function ProcedurePage() {
     }
 
     const handleDeleteProcedure = (id: number) => {
+        /*
         agent.Procedures.removeProcedure(id)
             .then(() => dispatch(removeProcedure(id)))
             .catch(error => console.log(error))
+            */
+        dispatch(removeProcedure(id))
     }
 
     return (

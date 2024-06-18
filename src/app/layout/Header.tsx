@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 
 const midLinks = [
     { title: 'Department', path: 'department' },
-    { title: 'Backs', path: 'backs' },
+
     { title: 'Procedure/Area', path: 'procedure' },
 ]
 

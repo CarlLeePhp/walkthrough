@@ -7,7 +7,10 @@ interface ProcedureState {
 
 const initialState: ProcedureState = {
     procedures: [
-
+        { id: 1, description: "Animal Welfare", isActive: true },
+        { id: 2, description: "Y-Cut", isActive: true },
+        { id: 3, description: "Pre-Op", isActive: true },
+        { id: 4, description: "Pre-Trim", isActive: true },
     ],
 };
 

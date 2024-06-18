@@ -14,13 +14,15 @@ export default function DepartmentPage() {
     const departments = useAppSelector(departmentSelector);
 
     const dispatch = useAppDispatch();
-
+    /***
     useEffect(() => {
         agent.Departments.list().then(data => {
             let initialDepartments: Department[] = data;
             dispatch(setDepartments(initialDepartments));
         })
     }, []);
+    ***/
+
 
     function newDepartment() {
         setOpen(true);
@@ -50,10 +52,15 @@ export default function DepartmentPage() {
             name: selectedName,
             isActive: true
         }
+        /*
         agent.Departments.addDepartment(newDepartment)
             .then(department => dispatch(addDepartment(department)))
             .catch(error => console.log(error))
             .finally(() => setOpen(false))
+        */
+        newDepartment.id = departments.length + 1;
+        dispatch(addDepartment(newDepartment));
+        setOpen(false);
     }
 
     function handleEditDepartment() {
@@ -62,16 +69,23 @@ export default function DepartmentPage() {
             name: selectedName,
             isActive: true,
         };
+        /*
         agent.Departments.update(editDepartment)
             .then(d => dispatch(updateDepartment(d)))
             .catch(error => console.log(error))
             .finally(() => setOpen(false));
+        */
+        dispatch(updateDepartment(editDepartment))
+        setOpen(false)
     }
 
     const handleDeleteDepartment = (id: number) => {
+        /*
         agent.Departments.remove(id)
             .then(() => dispatch(removeDepartment(id)))
             .catch(error => console.log(error))
+        */
+        dispatch(removeDepartment(id))
     }
 
     return (

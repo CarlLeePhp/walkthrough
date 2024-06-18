@@ -49,7 +49,7 @@ export default function WalkthroughPage() {
 
     const walkthroughs = useAppSelector((state: RootState) => state.walkthrough.walkthroughs);
     const auditors = useAppSelector((state: RootState) => state.auditor.auditors);
-    const actions = useAppSelector((state: RootState) => state.action.actions);
+    const actions = useAppSelector((state: RootState) => state.procedure.procedures);
     const dispatch = useAppDispatch();
 
     const departments = useAppSelector(departmentSelector);
